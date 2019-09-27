@@ -5,6 +5,9 @@ const Schema = mongoose.Schema
 const UserSchema = new Schema({
   email: {
     type: String,
+    unique: true,
+    lowercase: true,
+    trim: true,
     required: true
   },
   password: {
@@ -15,6 +18,10 @@ const UserSchema = new Schema({
     type: Date,
     default: Date.now
   }
-})
+});
+
+UserSchema.methods.comparePassword = function(password) {
+  return bcrypt.compareSync(password, this.hash_password);
+};
 
 module.exports = User = mongoose.model('users', UserSchema)

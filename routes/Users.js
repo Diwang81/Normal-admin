@@ -5,8 +5,8 @@ const jwt = require("jsonwebtoken")
 const bcrypt = require ("bcrypt")
 
 const User =require("../models/User")
-users.use(cors())
 
+users.use(cors())
 process.env.SECRET_KEY = 'secret'
 
 users.post('/register', (req, res) =>{
@@ -23,6 +23,7 @@ users.post('/register', (req, res) =>{
     .then(user => {
         if (!user) {
             bcrypt.hash(req.body.password, 10, (err, hash) => {
+              if (err) return next(err);
                 userData.password = hash
                 User.create(userData)
                     .then(user => {
@@ -41,53 +42,34 @@ users.post('/register', (req, res) =>{
     })
 })
 
-users.post('/login', (req, res) => {
-    User.findOne({
-      email: req.body.email
-    })
-      .then(user => {
-        if (user) {
-          if (bcrypt.compareSync(req.body.password, user.password)) {
-            // Passwords match
-            const payload = {
-              _id: user._id,
-              first_name: user.first_name,
-              last_name: user.last_name,
-              email: user.email
-            }
-            let token = jwt.sign(payload, process.env.SECRET_KEY, {
-              expiresIn: 1440
-            })
-            res.send(token)
-          } else {
-            // Passwords don't match
-            res.json({ error: 'User does not exist' })
+users.post('/Login', (req, res) => {
+  User.findOne({
+    email: req.body.email
+  })
+    .then(user => {
+      if (user) {
+        if (bcrypt.compareSync(req.body.password, user.password)) {
+          // Passwords match
+          const payload = {
+            _id: user._id,
+            first_name: user.first_name,
+            last_name: user.last_name,
+            email: user.email
           }
+          let token = jwt.sign(payload, process.env.SECRET_KEY, {
+            expiresIn: 1440
+          })
+          res.send(token)
         } else {
+          // Passwords don't match
           res.json({ error: 'User does not exist' })
         }
-      })
-      .catch(err => {
-        res.send('error: ' + err)
-      })
-  })
-  
-  users.get('/profile', (req, res) => {
-    var decoded = jwt.verify(req.headers['authorization'], process.env.SECRET_KEY)
-  
-    User.findOne({
-      _id: decoded._id
+      }
     })
-      .then(user => {
-        if (user) {
-          res.json(user)
-        } else {
-          res.send('User does not exist')
-        }
-      })
-      .catch(err => {
-        res.send('error: ' + err)
-      })
-  })
+    .catch(err => {
+      res.send('error: ' + err)
+    })
+})
+  
 
 module.exports = users

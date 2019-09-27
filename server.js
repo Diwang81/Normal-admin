@@ -17,7 +17,7 @@ const mongoURI = 'mongodb+srv://app-admin:app-admin@cluster0-hcadv.mongodb.net/t
 mongoose
   .connect(
     mongoURI,
-    { useNewUrlParser: true }
+    { useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true }
   )
   .then(() => console.log('MongoDB Connected'))
   .catch(err => console.log(err))
