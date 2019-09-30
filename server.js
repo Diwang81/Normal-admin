@@ -6,6 +6,8 @@ var port = process.env.PORT || 3000
 const mongoose = require('mongoose')
 app.use(bodyParser.json())
 app.use(cors())
+
+// Bodyparser middleware
 app.use(
   bodyParser.urlencoded({
     extended: false
